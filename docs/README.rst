@@ -181,7 +181,7 @@ Some of these will be made common between platforms, but until
 we know which ones they are, we make them platform-specific.
 
 ===                           ===========    =============    ==============    =====================    ====================
-                                                                          Build Types
+                                                                                     Build Types                                        
 ---                           -----------    --------------------------------------------------------------------------------
 Tag                           Python Type    StaticLibrary    DynamicLibrary    Application (Console)    Application(Windows)
 ===                           ===========    =============    ==============    =====================    ====================
