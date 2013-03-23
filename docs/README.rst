@@ -180,11 +180,11 @@ User Must Set These Tags
 Some of these will be made common between platforms, but until
 we know which ones they are, we make them platform-specific.
 
-    ===                           ===========    =============    ==============    =====================    ====================
-                                                                              Build Types
-                                                 --------------------------------------------------------------------------------
-    Tag                           Python Type    StaticLibrary    DynamicLibrary    Application (Console)    Application(Windows)
-    ===                           ===========    =============    ==============    =====================    ====================
+===                           ===========    =============    ==============    =====================    ====================
+                                                                          Build Types
+---                           -----------    --------------------------------------------------------------------------------
+Tag                           Python Type    StaticLibrary    DynamicLibrary    Application (Console)    Application(Windows)
+===                           ===========    =============    ==============    =====================    ====================
 
     
     windows_project_guid       (GUID, as returned by uuid.uuid())
