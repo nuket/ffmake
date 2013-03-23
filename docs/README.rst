@@ -186,6 +186,18 @@ we know which ones they are, we make them platform-specific.
 Tag                           Python Type    StaticLibrary    DynamicLibrary    Application (Console)    Application(Windows)
 ===                           ===========    =============    ==============    =====================    ====================
 
+The canonical.
+
+=====  =====  ======
+   Inputs     Output
+------------  ------
+  A      B    A or B
+=====  =====  ======
+False  False  False
+True   False  True
+False  True   True
+True   True   True
+=====  =====  ======
     
     windows_project_guid       (GUID, as returned by uuid.uuid())
     windows_root_namespace     (String, essentially unique project name)
