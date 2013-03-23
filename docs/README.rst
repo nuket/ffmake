@@ -23,7 +23,8 @@ A few thoughts:
   But it's got a hell of a steep learning curve for anyone else.
   
   Try adding a link to a pre-built system static library. 
-  I tried it once. Good luck with that.
+  I tried it once. Good luck with that. You just have to build it
+  yourself, and define the gyp rule to do it.
   
 * SCons is good, but it doesn't generate native project files,
   so you get to do all your work at the command line. It's
@@ -49,6 +50,12 @@ A few thoughts:
   Windows, it defines a reserved stack size of 10 million bytes,
   for whatever reason, it puts weird settings in the projects,
   which aren't there by default. It just feels crufty.
+
+* None of these systems have an easy way of importing and 
+  generating premade build recipes. ffmake is shooting for 
+  enough parameter-injected design to make it easy to import
+  and create dependencies on other ffmakefiles, with project
+  generation become just another one-liner.
 
 How is ffmake different?
 ------------------------
@@ -173,6 +180,13 @@ User Must Set These Tags
 Some of these will be made common between platforms, but until
 we know which ones they are, we make them platform-specific.
 
+    ===                           ===========    =============    ==============    =====================    ====================
+                                                                              Build Types
+                                                 --------------------------------------------------------------------------------
+    Tag                           Python Type    StaticLibrary    DynamicLibrary    Application (Console)    Application(Windows)
+    ===                           ===========    =============    ==============    =====================    ====================
+
+    
     windows_project_guid       (GUID, as returned by uuid.uuid())
     windows_root_namespace     (String, essentially unique project name)
     windows_configuration_type (String, one of: "StaticLibrary", "DynamicLibrary", "Application")
