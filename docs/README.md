@@ -187,7 +187,7 @@ we know which ones they are, we make them platform-specific.
                                 Application (Console): True
                                 Application (Windows): True
 
-    include_dirs               (Strings, separated by ';')
+    include_dirs               (List of Strings)
     include_dirs_shared
     include_dirs_static
     include_dirs_debug
@@ -195,7 +195,7 @@ we know which ones they are, we make them platform-specific.
     include_dirs_32bit
     include_dirs_64bit
 
-    preprocessor_defs          (Strings, separated by ';')
+    preprocessor_defs          (List of Strings)
                                 StaticLibrary:         ["_LIB"]
                                 DynamicLibrary:        ["_WINDOWS", "_USRDLL"]
                                 Application (Console): ["_CONSOLE"]
@@ -208,5 +208,12 @@ we know which ones they are, we make them platform-specific.
     preprocessor_defs_32bit
     preprocessor_defs_64bit
 
-    use_precompiled_header     (Boolean)
+    precompiled_header         (Dictionary, single entry { 'filename': 'source.pch' })
+
+Instantiating a WindowsProject object
+-------------------------------------
+
+    wp = WindowsProject(name="ProjectName", build_type="static_library", source_root="")
+    wp.render(stdout=True)
+
 
