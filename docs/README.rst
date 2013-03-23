@@ -87,7 +87,7 @@ figure out what settings change between target types.
 Using a 3-way diff, you can see what needs to be templatized,
 and what stays the same among all of the project files.
 
-![3-way diff](3-way-project-diff.png)
+.. image:: 3-way-project-diff.png
 
 Simplifications to keep you / me sane
 -------------------------------------
@@ -97,7 +97,7 @@ or a 64-bit built, ffmake always generates both. Screw configurability
 on that point.
 
 For example, in Visual Studio Project files, there's a block like this
-in all of the Project files:
+in all of the Project files::
 
     <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -119,7 +119,7 @@ in all of the Project files:
     </ItemGroup>
     
 Then, in the Visual Studio Solution files, there are repeated blocks like 
-these:
+these::
 
     {5FAF062B-A3C2-4E4F-856C-3774900EF63C}.Debug|Win32.ActiveCfg = Debug|Win32
     {5FAF062B-A3C2-4E4F-856C-3774900EF63C}.Debug|Win32.Build.0 = Debug|Win32
@@ -201,7 +201,7 @@ we know which ones they are, we make them platform-specific.
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
 |                              |                  |                    |                         |                        |                        |
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
-|                                                                   Common Tags                                                                    |
+|                                                                 **Common Tags**                                                                  |
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
 | include_dirs                 |                  |                    |                         |                        |                        |
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
@@ -234,23 +234,16 @@ we know which ones they are, we make them platform-specific.
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
 | preprocessor_defs_64bit      |                  |                    |                         |                        |                        |
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
+|                                                                                                                                                  |
++------------------------------+------------------+------------------------------------------------------------------------------------------------+
+| precompiled_header           | Dictionary       | Single entry { 'filename': 'source.cpp' } describes file to be turned into PCH.                |
++------------------------------+------------------+------------------------------------------------------------------------------------------------+
 
-
-
-
-
-
-    preprocessor_defs_shared   (String)
-                                DynamicLibrary:         , for example
-    
-
-    precompiled_header         (Dictionary, single entry { 'filename': 'source.pch' })
-    
-    
 
 Instantiating a WindowsProject object
 -------------------------------------
 
+::
     wp = WindowsProject(name="ProjectName", build_type="static_library", source_dir="", source_files=[])
     wp.render(stdout=True)
 
@@ -259,6 +252,7 @@ source_files can be specified relatively.
 
 So let's say you have:
 
+::
     project/src/A.cpp
     project/src/B.cpp
     project/src/C.cpp
