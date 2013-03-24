@@ -197,6 +197,11 @@ we know which ones they are, we make them platform-specific.
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
 | windows_incremental_link     | Boolean          | False              | True                    | True                   | True                   |
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
+| preprocessor_defs_project    | List of Strings  | ["_LIB"]           | ["_WINDOWS", "_USRDLL"] | ["_CONSOLE"]           | ["_WINDOWS"]           |
++------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
+| preprocessor_defs_shared     |                  |                    | ["DLLAPIEXPORT"]        |                        |                        |
+|                              |                  |                    | (for example)           |                        |                        |
++------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
 |                              |                  |                    |                         |                        |                        |
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
 | include_dirs                 |                  |                    |                         |                        |                        |
@@ -231,21 +236,34 @@ we know which ones they are, we make them platform-specific.
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
 |                                                                                                                                                  |
 +------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
-| preprocessor_defs            |                  | ["_LIB"]           | ["_WINDOWS", "_USRDLL"] | ["_CONSOLE"]           | ["_WINDOWS"]           |
+| preprocessor_defs            |                  |                    |                         |                        |                        |
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
-| preprocessor_defs_shared     |                  |                    | ["DLLAPIEXPORT"]        |                        |                        |
-|                              |                  |                    | (for example)           |                        |                        |
+| preprocessor_defs_shared     |                  |                    |                         |                        |                        |
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
 | preprocessor_defs_static     |                  |                    |                         |                        |                        |
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
-| preprocessor_defs_debug      | List of Strings  |                    |                         |                        |                        |
+| preprocessor_defs_executable | List of Strings  |                    |                         |                        |                        |
++------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
+| preprocessor_defs_debug      |                  |                    |                         |                        |                        |
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
 | preprocessor_defs_release    |                  |                    |                         |                        |                        |
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
 | preprocessor_defs_32bit      |                  |                    |                         |                        |                        |
 +------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
 | preprocessor_defs_64bit      |                  |                    |                         |                        |                        |
-+------------------------------+------------------+--------------------+-------------------------+------------------------+------------------------+
++------------------------------+                  +--------------------+-------------------------+------------------------+------------------------+
+| preprocessor_defs_project    |                  | Used in WindowsProject class to set some defines automatically. User probably shouldn't set    |
+|                              |                  | this tag. Used by various subclasses of Project to set defines automatically.                  |
++------------------------------+                  +------------------------------------------------------------------------------------------------+
+| preprocessor_defs_build_type |                  | Used in Project class, it is set to::                                                          |
+|                              |                  |                                                                                                |
+|                              |                  |     preprocessor_defs_shared, when build_type == 'shared_library'                              |
+|                              |                  |     preprocessor_defs_static, when build_type == 'static_library'                              |
+|                              |                  |     preprocessor_defs_executable, when build_type == 'executable'                              |
+|                              |                  |                                                                                                |
+|                              |                  | i.e You still pass in preprocesor_defs_{shared, static, executable}, but on the backend the    |
+|                              |                  | Project class will use only what it needs.                                                     |
++------------------------------+------------------+------------------------------------------------------------------------------------------------+
 |                                                                                                                                                  |
 +------------------------------+------------------+------------------------------------------------------------------------------------------------+
 | precompiled_header           | Dictionary       | Single entry { 'filename': 'source.cpp' } describes file to be turned into PCH.                |
@@ -264,8 +282,10 @@ we know which ones they are, we make them platform-specific.
 +------------------------------+------------------+--------------------+---------------------------------------------------------------------------+
 | build_type                   | String           | Yes                | One of "static_library", "shared_library", "executable".                  |
 +------------------------------+------------------+--------------------+---------------------------------------------------------------------------+
-| source_dir                   | String           | Yes                | Should be a relative path to the directory for the rest of the files for  |
-|                              |                  |                    | the project can be found. This path is then prepended to all of the       |
+| source_dir                   | String           | Yes                | Should be a relative path to the directory where the rest of the files for|
+|                              |                  |                    | the project can be found. It is a single String, it is **not** a List.    |
+|                              |                  |                    |                                                                           |
+|                              |                  |                    | This path is then prepended to all of the                                 |
 |                              |                  |                    | sources listed below, so it should be specified like::                    |
 |                              |                  |                    |                                                                           |
 |                              |                  |                    |     '../../project_root' or '..\..\project_root'                          |
@@ -287,6 +307,7 @@ we know which ones they are, we make them platform-specific.
 |                              |                  |                    |                                                                           |
 |                              |                  |                    | The include_files and lib_files have their own search directories, which  |
 |                              |                  |                    | are specified separately via the include_dirs_* and lib_dirs_* tags.      |
+|                              |                  |                    |                                                                           |
 +------------------------------+------------------+--------------------+---------------------------------------------------------------------------+
 | text_files                   | List of Strings  | No                 | Example::                                                                 |
 |                              |                  |                    |                                                                           |
