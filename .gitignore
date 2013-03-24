@@ -161,3 +161,21 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+
+############
+# Emacs
+############
+
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
