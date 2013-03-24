@@ -32,6 +32,14 @@ MODULE_DIR = os.path.dirname(__file__) + os.sep
 
 # Helper Functions
 
+def prefix_string_list_entries(prefix, string_list):
+    return ['{0}{1}'.format(prefix, S) for S in string_list]
+
+def prepare_filename_list_entries(file_list, prefix="", suffix=""):
+    return [{'filename': '{0}{1}{2}'.format(prefix, F, suffix)} for F in file_list]
+
+def prepare_dirname_list_entries(dir_list, prefix="", suffix=""):
+    return [{'dirname': '{0}{1}{2}'.format(prefix, D, suffix)} for D in dir_list]
 
 # Classes
     
@@ -81,7 +89,7 @@ class Project(object):
         
     def render(self):
         # Fill out the correct path to the templates.
-        template_dirs = ['{0}{1}'.format(MODULE_DIR, T) for T in self.template_dirs]
+        template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
 
         self.renderer = pystache.Renderer(search_dirs=template_dirs)
         return self.renderer.render_name(self.template, self.tags)
@@ -166,6 +174,7 @@ class WindowsProject(Project):
         
         # Start layering on additional settings.
         
+        """
         self.include_dirs  = kwargs.pop('include_dirs', [])
         self.include_files = kwargs.pop('include_files', [])
         
@@ -173,6 +182,10 @@ class WindowsProject(Project):
         self.lib_files     = kwargs.pop('lib_names', [])
         
         self.source_files  = kwargs.pop('source_files', [])
+        """
+        self.tags['lib_dirs']  = prepare_dirname_list_entries(kwargs.pop('lib_dirs', []))
+        self.tags['lib_files'] = prepare_filename_list_entries(kwargs.pop('lib_files', []))
+
         """
         self.include_dirs   = include_dirs
         self.include_files  = include_files   # full filenames (with .h)

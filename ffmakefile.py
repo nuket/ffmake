@@ -22,5 +22,11 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 import ffmake
 
-wp = ffmake.WindowsProject(name="TestProject", build_type="static_library")
+# ffmake.GenerateProjects(types=["VS2012", "Xcode45", "Android.mk"])
+
+
+wp = ffmake.WindowsProject(name="TestProject", 
+                           build_type="static_library",
+                           lib_dirs=['..\\dirA', '..\\dirB'],
+                           lib_files=['A', 'B', 'C'])
 print wp.render()
