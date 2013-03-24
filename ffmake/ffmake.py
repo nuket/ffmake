@@ -26,8 +26,6 @@ import uuid
 
 # Helper Functions
 
-def create_uuid():
-    return str(uuid.uuid4()).upper()
 
 # Classes
     
@@ -48,6 +46,10 @@ class Project(object):
     Items in args and kwargs and .popped, meaning the caller loses
     them.
     """
+    
+    # Base class allowable build types.
+    BUILD_TYPES = ['static_library', 'shared_library', 'executable']
+    
     def __init__(self, *args, **kwargs):
         # Contains information to be rendered to the project template.
         self.tags = {}
@@ -61,7 +63,7 @@ class Project(object):
             raise e
 
         # Optional parameters are here.
-        self.tags['guid'] = kwargs.pop('guid', create_uuid())
+        self.tags['guid'] = kwargs.pop('guid', '')
         
         """
         self.output         = output
@@ -92,12 +94,6 @@ class WindowsProject(Project):
             'windows_incremental_link':   True,
             'preprocessor_defs':          ["_WINDOWS", "_USRDLL"]
         },
-        'executable': {
-            'windows_configuration_type': 'Application',
-            'windows_link_subsystem':     'Console',
-            'windows_incremental_link':   True,
-            'preprocessor_defs':          ["_CONSOLE"]
-        },
         'windows_executable': {
             'windows_configuration_type': 'Application',
             'windows_link_subsystem':     'Windows',
@@ -112,18 +108,24 @@ class WindowsProject(Project):
         }
     }
 
+    def create_uuid():
+        return '{' + str(uuid.uuid4()).upper() + '}'
+
     def __init__(self, *args, **kwargs):
         # Call superclass (note: side effect, args and kwargs are modified)
         super(WindowsProject, self).__init__(*args, **kwargs)
         
         # Convert some of the basic params to the Windows-specific
         # Mustache tags.
-        self.tags['windows_project_guid']   = self.tags['guid']
+        self.tags['windows_project_guid']   = self.tags['guid'] or self.create_uuid()
         self.tags['windows_root_namespace'] = self.tags['name']
 
         # Figure out what kind of project this is.
         try:
             build_type = kwargs.pop('build_type')
+            
+            # Map 'executable' type to 'console_executable'
+            
         except KeyError as e:
             print "Required parameter was not provided: " + str(e)
             raise e
@@ -198,5 +200,8 @@ S = Solution(name='MySolution',
 # with all paths relative to that directory.
 
 if __name__ == "__main__":
-    wp = WindowsProject(name="ConsoleExe", build_type="windows_executable")
+    wp = WindowsProject(name="ConsoleExe", build_type="windows_executable", source_dir="", source_files=[])
     print wp.render()
+    
+    ws = WindowsSolution(name="MySolution", projects=[wp])
+    print ws.render()
