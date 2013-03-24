@@ -275,6 +275,18 @@ we know which ones they are, we make them platform-specific.
 |                              |                  |                    | The path can be specified as above, but we will always make sure to       |
 |                              |                  |                    | convert the '/' character to the proper path separator for the project    |
 |                              |                  |                    | file. e.g. Visual Studio Project files get '\' characters.                |
+|                              |                  |                    |                                                                           |
+|                              |                  |                    | Specifically, source_dir is prepended to these Lists::                    |
+|                              |                  |                    |                                                                           |
+|                              |                  |                    |     text_files, source_files, unmanaged_source_files, resource_files,     |
+|                              |                  |                    |     image_files                                                           |
+|                              |                  |                    |                                                                           |
+|                              |                  |                    | As importantly, source_dir is **not** prepended to these Lists::          |
+|                              |                  |                    |                                                                           |
+|                              |                  |                    |     include_files, lib_files                                              |
+|                              |                  |                    |                                                                           |
+|                              |                  |                    | The include_files and lib_files have their own search directories, which  |
+|                              |                  |                    | are specified separately via the include_dirs_* and lib_dirs_* tags.      |
 +------------------------------+------------------+--------------------+---------------------------------------------------------------------------+
 | text_files                   | List of Strings  | No                 | Example::                                                                 |
 |                              |                  |                    |                                                                           |
