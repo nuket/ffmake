@@ -35,16 +35,29 @@ MODULE_DIR = os.path.dirname(__file__) + os.sep
 def prefix_string_list_entries(prefix, string_list):
     return ['{0}{1}'.format(prefix, S) for S in string_list]
 
-def prepare_filename_list_entries(file_list, prefix="", suffix=""):
-    return [{'filename': '{0}{1}{2}'.format(prefix, F, suffix)} for F in file_list]
+def prepare_filename_list_entries(prefix="", filename_list=[], suffix=""):
+    return [{'filename': '{0}{1}{2}'.format(prefix, F, suffix)} for F in filename_list]
 
-def prepare_dirname_list_entries(dir_list, prefix="", suffix=""):
-    return [{'dirname': '{0}{1}{2}'.format(prefix, D, suffix)} for D in dir_list]
+def prepare_dirname_list_entries(prefix="", dirname_list=[], suffix=""):
+    return [{'dirname': '{0}{1}{2}'.format(prefix, D, suffix)} for D in dirname_list]
 
-def exception_explain_required_tag(class_name="", keyname=""):
+def prefix_and_fix_separator(prefix="", string_list=[]):
+    # Only use the prefix if one is provided. 
+    # Check the prefix. It needs to have os.sep at its end.
+    if prefix:
+        prefix = prefix.strip()
+        prefix = prefix.replace('\\', os.sep)
+        prefix = prefix.replace('//', os.sep)
+
+        if not prefix.endswith('\\') or not prefix.endswith('//'):
+            prefix = prefix + os.sep
+
+    return prepare_filename_list_entries(prefix=prefix, filename_list=string_list)
+
+def exception_explain_required_tag(class_name="", tag=""):
     print
-    print "ffmake: Required tag was not provided to the {0} constructor: {1}".format(class_name, keyname)
-    print "ffmake: Check your {0} instantiation, and make sure it has {1}='SomeValue' in it.".format(class_name, keyname.replace("'", ""))
+    print "ffmake: Required tag was not provided to the {0} constructor: {1}".format(class_name, tag)
+    print "ffmake: Check your {0} instantiation, and make sure it has {1}='SomeValue' in it.".format(class_name, tag.replace("'", ""))
     print
 
 def exception_explain_build_types(build_types=[]):
@@ -82,6 +95,14 @@ class Project(object):
 
     # Base class checks for certain required tags.
     REQUIRED_TAGS = ['name', 'build_type']
+
+    # Tags that are dirname or filename lists, that need to be
+    # run through the source_dir prefixer.
+    FILENAMES_NEEDING_SOURCE_DIR = ['text_files', 
+                                    'source_files',
+                                    'unmanaged_source_files',
+                                    'resource_files',
+                                    'image_files']
     
     def __init__(self, *args, **kwargs):
         # Contains information to be rendered to the project template.
@@ -100,6 +121,17 @@ class Project(object):
             exception_explain_required_tag(self.__class__.__name__, str(e))
             raise e
 
+        # Process all of the file lists, prefixing
+        # them with source_dir, if it exists.
+        source_dir = self.tags.get('source_dir', '')
+
+        # In other word: if text_files=['A.txt', 'B.txt'] then after
+        # after this loop:  text_files=['source_dir/A.txt', 'source_dir/B.txt']   (Unix)
+        # or:               text_files=['source_dir\\A.txt', 'source_dir\\B.txt'] (Windows)
+        for T in Project.FILENAMES_NEEDING_SOURCE_DIR:
+            if T in self.tags:
+                self.tags[T] = prefix_and_fix_separator(source_dir, self.tags[T])
+
         """
         self.output         = output
 
@@ -108,12 +140,29 @@ class Project(object):
         self.dependencies   = dependencies
         """
         
-    def render(self):
+    def render(self, filename=''):
+        """
+        Renders the Project file template. 
+
+        :filename:  A fully-qualified filename including path. 
+
+        :returns:   The rendered template string.
+        """
         # Fill out the correct path to the templates.
         template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
 
+        # Create a Renderer that will find the templates and partials.
         self.renderer = pystache.Renderer(search_dirs=template_dirs)
-        return self.renderer.render_name(self.template, self.tags)
+
+        # Render to string.
+        output = self.renderer.render_name(self.template, self.tags)
+
+        if filename:
+            # Open the file and dump info there.
+            pass
+
+        return output
+
 
 class WindowsProject(Project):
     # 'executable' == 'console_executable' by default (it's an alias)
@@ -214,8 +263,8 @@ class WindowsProject(Project):
         
         self.source_files  = kwargs.pop('source_files', [])
         """
-        self.tags['lib_dirs']  = prepare_dirname_list_entries(kwargs.pop('lib_dirs', []))
-        self.tags['lib_files'] = prepare_filename_list_entries(kwargs.pop('lib_files', []))
+        self.tags['lib_dirs']  = prepare_dirname_list_entries(dirname_list=kwargs.pop('lib_dirs', []))
+        self.tags['lib_files'] = prepare_filename_list_entries(filename_list=kwargs.pop('lib_files', []))
 
         """
         self.include_dirs   = include_dirs
@@ -234,27 +283,13 @@ class WindowsSolution:
     def __init__(self):
         pass
 
-"""
-L = Project(name='MyLib',
-            result='StaticLibrary',
-            source_root='')
-L.render(where="outputdir")
-"""
 
-"""
-E = Project(name='MyExe',
-            dependencies = [ L ])
+class ProjectFactory:
+    """
+    Creates Project-derived objects and returns these to caller.
+    """
+    def __init__(self, name="", build_types=[], *args, **kwargs):
+        pass
 
-S = Solution(name='MySolution',
-             projects = [ L, E ])
-"""
-
-# Generate the solution, project files in the current working directory
-# with all paths relative to that directory.
-
-if __name__ == "__main__":
-    wp = WindowsProject(name="ConsoleExe", build_type="windows_executable", source_dir="", source_files=[])
-    print wp.render()
-    
-    ws = WindowsSolution(name="MySolution", projects=[wp])
-    print ws.render()
+    def render(self):
+        pass

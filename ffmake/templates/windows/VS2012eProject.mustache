@@ -85,6 +85,8 @@
     <Link>
       <SubSystem>{{windows_link_subsystem}}</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>{{#lib_dirs}}{{dirname}};{{/lib_dirs}}%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>{{#lib_files}}{{filename}}.lib;{{/lib_files}}%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -139,17 +141,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     {{#text_files}}
-    {{>Text}}
+    <Text Include="{{filename}}" />
     {{/text_files}}
   </ItemGroup>
   <ItemGroup>
     {{#include_files}}
-    {{>ClInclude}}
+    <ClInclude Include="{{filename}}" />
     {{/include_files}}
   </ItemGroup>
   <ItemGroup>
     {{#source_files}}
-    {{>ClCompile}}
+    <ClCompile Include="{{filename}}" />
     {{/source_files}}
     {{#unmanaged_source_files}}
     {{>CompileUnmanaged}}
@@ -159,14 +161,14 @@
     {{/precompiled_header}}
   </ItemGroup>
   <ItemGroup>
-  {{#resource_files}}
-  {{>ResourceCompile}}
-  {{/resource_files}}
+    {{#resource_files}}
+    <ResourceCompile Include="{{filename}}" />
+    {{/resource_files}}
   </ItemGroup>
   <ItemGroup>
-  {{#image_files}}
-  {{>Image}}
-  {{/image_files}}
+    {{#image_files}}
+    <Image Include="{{filename}}" />
+    {{/image_files}}
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
