@@ -41,6 +41,18 @@ def prepare_filename_list_entries(file_list, prefix="", suffix=""):
 def prepare_dirname_list_entries(dir_list, prefix="", suffix=""):
     return [{'dirname': '{0}{1}{2}'.format(prefix, D, suffix)} for D in dir_list]
 
+def exception_explain_required_tag(class_name="", keyname=""):
+    print
+    print "ffmake: Required tag was not provided to the {0} constructor: {1}".format(class_name, keyname)
+    print "ffmake: Check your {0} instantiation, and make sure it has {1}='SomeValue' in it.".format(class_name, keyname.replace("'", ""))
+    print
+
+def exception_explain_build_types(build_types=[]):
+    print
+    print "ffmake: build_type must be one of: "
+    print "ffmake: " + ', '.join(build_types)
+    print
+
 # Classes
     
 class Project(object):
@@ -61,24 +73,33 @@ class Project(object):
     them.
     """
     
+    BUILD_TYPE_STATIC_LIBRARY = 'static_library'
+    BUILD_TYPE_SHARED_LIBRARY = 'shared_library'
+    BUILD_TYPE_EXECUTABLE     = 'executable'
+
     # Base class allowable build types.
-    BUILD_TYPES = ['static_library', 'shared_library', 'executable']
+    BUILD_TYPES = [BUILD_TYPE_STATIC_LIBRARY, BUILD_TYPE_SHARED_LIBRARY, BUILD_TYPE_EXECUTABLE]
+
+    # Base class checks for certain required tags.
+    REQUIRED_TAGS = ['name', 'build_type']
     
     def __init__(self, *args, **kwargs):
         # Contains information to be rendered to the project template.
+        # This is used by all derived classes.
         self.tags = {}
-        
-        # Superclass plugs the kwargs it recognizes into the tags
-        # dict. Required parameters are pulled here.
+
+        # Pull all kwargs into tags object.
+        # Deeply processing these tags happens in derived classes.
+        self.tags.update(kwargs)
+
+        # Required parameters are checked here.
         try:
-            self.tags['name'] = kwargs.pop('name')
+            for T in Project.REQUIRED_TAGS:
+                self.tags[T]
         except KeyError as e:
-            print "Required parameter was not provided: " + str(e)
+            exception_explain_required_tag(self.__class__.__name__, str(e))
             raise e
 
-        # Optional parameters are here.
-        self.tags['guid'] = kwargs.pop('guid', '')
-        
         """
         self.output         = output
 
@@ -96,7 +117,14 @@ class Project(object):
 
 class WindowsProject(Project):
     # 'executable' == 'console_executable' by default (it's an alias)
-    BUILD_TYPES = ['static_library', 'shared_library', 'executable', 'windows_executable', 'console_executable']
+    BUILD_TYPE_WINDOWS_EXECUTABLE = 'windows_executable'
+    BUILD_TYPE_CONSOLE_EXECUTABLE = 'console_executable'
+
+    BUILD_TYPES = list(Project.BUILD_TYPES)
+    BUILD_TYPES.extend([BUILD_TYPE_WINDOWS_EXECUTABLE, 
+                        BUILD_TYPE_CONSOLE_EXECUTABLE])
+
+    # ['static_library', 'shared_library', 'executable', 'windows_executable', 'console_executable']
     
     BUILD_TYPE_MAPPING = {
         'static_library': {
@@ -134,21 +162,24 @@ class WindowsProject(Project):
         
         # Convert some of the basic params to the Windows-specific
         # Mustache tags.
-        self.tags['windows_project_guid']   = self.tags['guid'] or self.create_uuid()
-        self.tags['windows_root_namespace'] = self.tags['name']
+        self.tags['windows_project_guid']   = self.tags.pop('guid', self.create_uuid())
+        self.tags['windows_root_namespace'] = self.tags.pop('name')
 
         # Figure out what kind of project this is.
         try:
             build_type = kwargs.pop('build_type')
             
             # Map 'executable' type to 'console_executable'
+            if build_type == Project.BUILD_TYPE_EXECUTABLE:
+                build_type = WindowsProject.BUILD_TYPE_CONSOLE_EXECUTABLE
             
         except KeyError as e:
-            print "Required parameter was not provided: " + str(e)
+            exception_explain_required_tag(self.__class__.__name__, str(e))
             raise e
 
-        if build_type not in WindowsProject.BUILD_TYPES:
-            raise ValueError("build_type must be one of: " + ', '.join(WindowsProject.BUILD_TYPES))
+        if build_type not in self.BUILD_TYPES:
+            exception_explain_build_types(self.BUILD_TYPES)
+            raise ValueError()
         
         # Pull in the default config values and apply them to the tags.
         self.tags.update(WindowsProject.BUILD_TYPE_MAPPING[build_type])
