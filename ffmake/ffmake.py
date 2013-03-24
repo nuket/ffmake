@@ -47,6 +47,8 @@ def fix_separators(paths):
     """
     Make sure that the input string or list of strings is using 
     the correct directory separator character.
+
+    So, always replace the \ or / symbols with the correct symbol.
     """
     if   str  == type(paths):
         paths = paths.replace('\\', os.sep)
@@ -95,7 +97,9 @@ def exception_explain_build_types(build_types=[]):
     print "ffmake: " + ', '.join(build_types)
     print
 
+# ----------------------------------------------------------
 # Classes
+# ----------------------------------------------------------
     
 class Project(object):
     """
@@ -202,8 +206,7 @@ class Project(object):
 
         # Process the tags that need some fixing.
 
-        # Process all of the file lists, prefixing
-        # them with source_dir, if it exists.
+        # Process all of the file lists, prefixing them with source_dir.
         source_dir = self.tags.get('source_dir', '')
 
         # In other words: if text_files=['A.txt', 'B.txt'] then after
@@ -240,8 +243,7 @@ class Project(object):
 
         return output
 
-
-class WindowsProject(Project):
+class VS2012Project(Project):
     # 'executable' == 'console_executable' by default (it's an alias)
     BUILD_TYPE_WINDOWS_EXECUTABLE = 'windows_executable'
     BUILD_TYPE_CONSOLE_EXECUTABLE = 'console_executable'
@@ -317,7 +319,7 @@ class WindowsProject(Project):
 
         # Set up template info.
         self.template_dirs  = kwargs.pop('template_dirs', ['templates/windows', 'templates/windows/partials'])
-        self.template       = kwargs.pop('template',       'VS2012eProject')
+        self.template       = kwargs.pop('template',       'VS2012Project')
         
         # Template dirs need to be specified in relation to where ffmake.py is located,
         # NOT where ffmakefile.py is being called (current working dir).
@@ -331,29 +333,9 @@ class WindowsProject(Project):
         
         # Start layering on additional settings.
         
-        """
-        self.include_dirs  = kwargs.pop('include_dirs', [])
-        self.include_files = kwargs.pop('include_files', [])
-        
-        self.lib_dirs      = kwargs.pop('lib_dirs', [])
-        self.lib_files     = kwargs.pop('lib_names', [])
-        
-        self.source_files  = kwargs.pop('source_files', [])
-        """
         # self.tags['lib_dirs']  = prepare_dirname_list_entries(dirname_list=kwargs.pop('lib_dirs', []))
         # self.tags['lib_files'] = prepare_filename_list_entries(filename_list=kwargs.pop('lib_files', []))
 
-        """
-        self.include_dirs   = include_dirs
-        self.include_files  = include_files   # full filenames (with .h)
-        self.lib_dirs       = lib_dirs
-        self.lib_files      = lib_names       # basename only, we stick .a or .lib on them.
-        self.source_files   = source_files    # full filenames (with .cc or .cpp) with relative path?
-        self.working_dir    = working_dir
-        """
-        # Check that the variables are the correct types.
-        # if list != type(self.template_dirs):
-        
         # Convert those variables we need as lists, to be lists of filename dicts { 'filename': 'X' }
 
 class WindowsSolution:
