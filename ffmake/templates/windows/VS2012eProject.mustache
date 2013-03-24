@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{{windows_project_guid}}</ProjectGuid> <!-- {4C1C3931-C231-4BA6-802C-15C5901A5A54} -->
+    <ProjectGuid>{{windows_project_guid}}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>{{windows_root_namespace}}</RootNamespace> <!-- ProjectNameHere -->
   </PropertyGroup>
@@ -66,20 +66,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <!-- Incremental Link capability, set up only for DynamicLibrary 
-       and Application configuration_types.
-       
-       Static configuration_type does not have this block. -->
   {{#windows_incremental_link}}
   {{>IncrementalLink}}
   {{/windows_incremental_link}}
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>{{include_dirs}};{{include_dirs_shared}};{{include_dirs_static}};{{include_dirs_debug}};{{include_dirs_32bit}};%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>{{>include_dirs}}{{>include_dirs_build_type}}{{>include_dirs_debug}}{{>include_dirs_32bit}}%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>{{#precompiled_header}}Use{{/precompiled_header}}</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;{{preprocessor_defs}};{{preprocessor_defs_shared}};{{preprocessor_defs_static}};{{preprocessor_defs_debug}};{{preprocessor_defs_release}};{{preprocessor_defs_32bit}};{{preprocessor_defs_64bit}};%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;{{>preprocessor_defs_project}}{{>preprocessor_defs}}{{>preprocessor_defs_build_type}}{{>preprocessor_defs_debug}}{{>preprocessor_defs_32bit}}%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -91,11 +87,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>{{include_dirs}};{{include_dirs_shared}};{{include_dirs_static}};{{include_dirs_debug}};{{include_dirs_64bit}};%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>{{>include_dirs}}{{>include_dirs_build_type}}{{>include_dirs_debug}}{{>include_dirs_64bit}}%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>{{#precompiled_header}}Use{{/precompiled_header}}</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;{{preprocessor_defs}};{{preprocessor_defs_shared}};{{preprocessor_defs_static}};{{preprocessor_defs_debug}};{{preprocessor_defs_release}};{{preprocessor_defs_32bit}};{{preprocessor_defs_64bit}};%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;{{>preprocessor_defs_project}}{{>preprocessor_defs}}{{>preprocessor_defs_build_type}}{{>preprocessor_defs_debug}}{{>preprocessor_defs_64bit}}%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -105,13 +101,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>{{include_dirs}};{{include_dirs_shared}};{{include_dirs_static}};{{include_dirs_release}};{{include_dirs_32bit}};%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>{{>include_dirs}}{{>include_dirs_build_type}}{{>include_dirs_release}}{{>include_dirs_32bit}}%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>{{#precompiled_header}}Use{{/precompiled_header}}</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;{{preprocessor_defs}};{{preprocessor_defs_shared}};{{preprocessor_defs_static}};{{preprocessor_defs_debug}};{{preprocessor_defs_release}};{{preprocessor_defs_32bit}};{{preprocessor_defs_64bit}};%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;{{>preprocessor_defs_project}}{{>preprocessor_defs}}{{>preprocessor_defs_build_type}}{{>preprocessor_defs_release}}{{>preprocessor_defs_32bit}}%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -123,13 +119,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>{{include_dirs}};{{include_dirs_shared}};{{include_dirs_static}};{{include_dirs_release}};{{include_dirs_64bit}};%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>{{>include_dirs}}{{>include_dirs_build_type}}{{>include_dirs_release}}{{>include_dirs_64bit}}%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>{{#precompiled_header}}Use{{/precompiled_header}}</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;{{preprocessor_defs}};{{preprocessor_defs_shared}};{{preprocessor_defs_static}};{{preprocessor_defs_debug}};{{preprocessor_defs_release}};{{preprocessor_defs_32bit}};{{preprocessor_defs_64bit}};%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;{{>preprocessor_defs_project}}{{>preprocessor_defs}}{{>preprocessor_defs_build_type}}{{>preprocessor_defs_release}}{{>preprocessor_defs_64bit}}%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
