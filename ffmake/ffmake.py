@@ -25,34 +25,63 @@ import os
 import pystache
 import uuid
 
+# ----------------------------------------------------------
+# Constants
+# ----------------------------------------------------------
+
+# You know, for development purposes. Set to 0 when 
+# releasing.
+
+DEBUG = 1
+
 # Need to know where the ffmake module is located, and where the 
 # templates are in relation to that.
 
 MODULE_DIR = os.path.dirname(__file__) + os.sep
 
+# ----------------------------------------------------------
 # Helper Functions
+# ----------------------------------------------------------
+
+def fix_separators(paths):
+    """
+    Make sure that the input string or list of strings is using 
+    the correct directory separator character.
+    """
+    if   str  == type(paths):
+        paths = paths.replace('\\', os.sep)
+        paths = paths.replace('/',  os.sep)
+    elif list == type(paths):
+        paths = [P.replace('\\', os.sep) for P in paths]
+        paths = [P.replace('/',  os.sep) for P in paths]
+
+    return paths
 
 def prefix_string_list_entries(prefix, string_list):
     return ['{0}{1}'.format(prefix, S) for S in string_list]
 
-def prepare_filename_list_entries(prefix="", filename_list=[], suffix=""):
-    return [{'filename': '{0}{1}{2}'.format(prefix, F, suffix)} for F in filename_list]
+def prepare_list_entries(tag="", prefix="", string_list=[], suffix=""):
+    """
+    Used to create lists of objects ready for rendering with
+    Mustache sections.
 
-def prepare_dirname_list_entries(prefix="", dirname_list=[], suffix=""):
-    return [{'dirname': '{0}{1}{2}'.format(prefix, D, suffix)} for D in dirname_list]
+    Examples:
+    [ {'filename': '../source_dir/A.cpp'}, ... ]
+    [ {'dirname':  '..\..\includes'},   ... ]
+    """
+    return [{'{0}'.format(tag): '{0}{1}{2}'.format(prefix, S, suffix)} for S in string_list]
 
-def prefix_and_fix_separator(prefix="", string_list=[]):
+def prefix_files(prefix="", filename_list=[]):
     # Only use the prefix if one is provided. 
     # Check the prefix. It needs to have os.sep at its end.
     if prefix:
         prefix = prefix.strip()
-        prefix = prefix.replace('\\', os.sep)
-        prefix = prefix.replace('//', os.sep)
-
-        if not prefix.endswith('\\') or not prefix.endswith('//'):
+        prefix = fix_separators(prefix)
+        
+        if not prefix.endswith('\\') or not prefix.endswith('/'):
             prefix = prefix + os.sep
 
-    return prepare_filename_list_entries(prefix=prefix, filename_list=string_list)
+    return prepare_list_entries(tag="filename", prefix=prefix, string_list=filename_list)
 
 def exception_explain_required_tag(class_name="", tag=""):
     print
@@ -103,7 +132,35 @@ class Project(object):
                                     'unmanaged_source_files',
                                     'resource_files',
                                     'image_files']
-    
+
+    # Tags that are dirname lists, that need to have the paths
+    # fixed.
+    PATHS_NEEDING_FIX = ['include_dirs',
+                         'include_dirs_shared',
+                         'include_dirs_static',
+                         'include_dirs_debug',
+                         'include_dirs_release',
+                         'include_dirs_32bit',
+                         'include_dirs_64bit',
+                         'lib_dirs',
+                         'lib_dirs_shared',
+                         'lib_dirs_static',
+                         'lib_dirs_debug',
+                         'lib_dirs_release',
+                         'lib_dirs_32bit',
+                         'lib_dirs_64bit']
+
+    PREPROCESSOR_DEFS_NEEDING_FIX = ['preprocessor_defs',
+                                     'preprocessor_defs_shared',
+                                     'preprocessor_defs_static',
+                                     'preprocessor_defs_executable',
+                                     'preprocessor_defs_debug',
+                                     'preprocessor_defs_release',
+                                     'preprocessor_defs_32bit',
+                                     'preprocessor_defs_64bit',
+                                     'preprocessor_defs_build_type',
+                                     'preprocessor_defs_project']
+
     def __init__(self, *args, **kwargs):
         # Contains information to be rendered to the project template.
         # This is used by all derived classes.
@@ -121,24 +178,18 @@ class Project(object):
             exception_explain_required_tag(self.__class__.__name__, str(e))
             raise e
 
-        # Process all of the file lists, prefixing
-        # them with source_dir, if it exists.
-        source_dir = self.tags.get('source_dir', '')
+        # Later derived-class __init__ methods will want to know:
+        # which of the preprocessor_defs_{shared, static, executable}
+        # flags to use.
 
-        # In other word: if text_files=['A.txt', 'B.txt'] then after
-        # after this loop:  text_files=['source_dir/A.txt', 'source_dir/B.txt']   (Unix)
-        # or:               text_files=['source_dir\\A.txt', 'source_dir\\B.txt'] (Windows)
-        for T in Project.FILENAMES_NEEDING_SOURCE_DIR:
-            if T in self.tags:
-                self.tags[T] = prefix_and_fix_separator(source_dir, self.tags[T])
+        if   self.tags['build_type'] == Project.BUILD_TYPE_STATIC_LIBRARY:
+             self.tags['preprocessor_defs_build_type'] = kwargs.pop('preprocessor_defs_static', [])
+        elif self.tags['build_type'] == Project.BUILD_TYPE_SHARED_LIBRARY:
+             self.tags['preprocessor_defs_build_type'] = kwargs.pop('preprocessor_defs_shared', [])
+        elif self.tags['build_type'] == Project.BUILD_TYPE_EXECUTABLE:
+             self.tags['preprocessor_defs_build_type'] = kwargs.pop('preprocessor_defs_executable', [])
 
-        """
-        self.output         = output
-
-        
-
-        self.dependencies   = dependencies
-        """
+        # if DEBUG: locals()
         
     def render(self, filename=''):
         """
@@ -148,6 +199,32 @@ class Project(object):
 
         :returns:   The rendered template string.
         """
+
+        # Process the tags that need some fixing.
+
+        # Process all of the file lists, prefixing
+        # them with source_dir, if it exists.
+        source_dir = self.tags.get('source_dir', '')
+
+        # In other words: if text_files=['A.txt', 'B.txt'] then after
+        # after this loop:   text_files=['source_dir/A.txt', 'source_dir/B.txt']   (Unix)
+        # or:                text_files=['source_dir\\A.txt', 'source_dir\\B.txt'] (Windows)
+        for T in Project.FILENAMES_NEEDING_SOURCE_DIR:
+            if T in self.tags:
+                self.tags[T] = prefix_files(prefix=source_dir, filename_list=self.tags[T])
+
+        for T in Project.PATHS_NEEDING_FIX:
+            if T in self.tags:
+                self.tags[T] = prepare_list_entries(tag='dirname', string_list=fix_separators(self.tags[T]))
+
+        # Prepare for Mustache.
+        # After this loop: preprocessor_defs=['DEFINE_A', 'DEFINE_B']
+        # Becomes:         preprocessor_defs=[{'define': 'DEFINE_A'}, {'define': 'DEFINE_B'}]
+
+        for D in Project.PREPROCESSOR_DEFS_NEEDING_FIX:
+            if D in self.tags:
+                self.tags[D] = prepare_list_entries(tag='define', string_list=self.tags[D])
+
         # Fill out the correct path to the templates.
         template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
 
@@ -180,25 +257,25 @@ class WindowsProject(Project):
             'windows_configuration_type': 'StaticLibrary',
             'windows_link_subsystem':     'Windows',
             'windows_incremental_link':   False,
-            'preprocessor_defs':          ['_LIB']
+            'preprocessor_defs_project':  ['_LIB']
         },
         'shared_library': {
             'windows_configuration_type': 'DynamicLibrary',
             'windows_link_subsystem':     'Windows',
             'windows_incremental_link':   True,
-            'preprocessor_defs':          ["_WINDOWS", "_USRDLL"]
+            'preprocessor_defs_project':  ["_WINDOWS", "_USRDLL"]
         },
         'windows_executable': {
             'windows_configuration_type': 'Application',
             'windows_link_subsystem':     'Windows',
             'windows_incremental_link':   True,
-            'preprocessor_defs':          ["_WINDOWS"]
+            'preprocessor_defs_project':  ["_WINDOWS"]
         },
         'console_executable': {
             'windows_configuration_type': 'Application',
             'windows_link_subsystem':     'Console',
             'windows_incremental_link':   True,
-            'preprocessor_defs':          ["_CONSOLE"]
+            'preprocessor_defs_project':  ["_CONSOLE"]
         }
     }
 
@@ -263,8 +340,8 @@ class WindowsProject(Project):
         
         self.source_files  = kwargs.pop('source_files', [])
         """
-        self.tags['lib_dirs']  = prepare_dirname_list_entries(dirname_list=kwargs.pop('lib_dirs', []))
-        self.tags['lib_files'] = prepare_filename_list_entries(filename_list=kwargs.pop('lib_files', []))
+        # self.tags['lib_dirs']  = prepare_dirname_list_entries(dirname_list=kwargs.pop('lib_dirs', []))
+        # self.tags['lib_files'] = prepare_filename_list_entries(filename_list=kwargs.pop('lib_files', []))
 
         """
         self.include_dirs   = include_dirs
