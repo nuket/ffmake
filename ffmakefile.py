@@ -20,7 +20,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from .ffmake import WindowsProject
+import ffmake
 
-__version__ = '0.1' # Also change in setup.py.
-__all__     = ['Project', 'WindowsProject']
+wp = ffmake.WindowsProject(name="TestProject", build_type="static_library")
+print wp.render()

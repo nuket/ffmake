@@ -21,8 +21,14 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import argparse
+import os
 import pystache
 import uuid
+
+# Need to know where the ffmake module is located, and where the 
+# templates are in relation to that.
+
+MODULE_DIR = os.path.dirname(__file__) + os.sep
 
 # Helper Functions
 
@@ -74,7 +80,10 @@ class Project(object):
         """
         
     def render(self):
-        self.renderer = pystache.Renderer(search_dirs=self.template_dirs)
+        # Fill out the correct path to the templates.
+        template_dirs = ['{0}{1}'.format(MODULE_DIR, T) for T in self.template_dirs]
+
+        self.renderer = pystache.Renderer(search_dirs=template_dirs)
         return self.renderer.render_name(self.template, self.tags)
 
 class WindowsProject(Project):
@@ -108,7 +117,7 @@ class WindowsProject(Project):
         }
     }
 
-    def create_uuid():
+    def create_uuid(self):
         return '{' + str(uuid.uuid4()).upper() + '}'
 
     def __init__(self, *args, **kwargs):
