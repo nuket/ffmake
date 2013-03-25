@@ -43,6 +43,9 @@ MODULE_DIR = os.path.dirname(__file__) + os.sep
 # Helper Functions
 # ----------------------------------------------------------
 
+def create_windows_guid():
+    return '{' + str(uuid.uuid4()).upper() + '}'
+
 def fix_separators(paths):
     """
     Make sure that the input string or list of strings is using 
@@ -85,6 +88,10 @@ def prefix_files(prefix="", filename_list=[]):
 
     return prepare_list_entries(tag="filename", prefix=prefix, string_list=filename_list)
 
+# ----------------------------------------------------------
+# Error Explanations
+# ----------------------------------------------------------
+
 def exception_explain_required_tag(class_name="", tag=""):
     print
     print "ffmake: Required tag was not provided to the {0} constructor: {1}".format(class_name, tag)
@@ -98,9 +105,45 @@ def exception_explain_build_types(build_types=[]):
     print
 
 # ----------------------------------------------------------
+# Mixin
+# ----------------------------------------------------------
+
+def render_mixin(self, filename=''):
+    """
+    Any class that needs to render a template uses this mixin.
+    
+    The 'self' class instance needs to have the following variables
+    set:
+
+    :template_dirs:  Tells Mustache where to find templates and partials.
+    :tags:           The tags Mustache uses when rendering.
+
+    Optional parameters:
+
+    :filename:       The file to render to.
+
+    :return:         The rendered output, regardless of what :filename:
+                     is set to.
+    """
+    # Fill out the correct path to the templates.
+    template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
+
+    # Create a Renderer that will find the templates and partials.
+    self.renderer = pystache.Renderer(search_dirs=template_dirs)
+
+    # Render to string.
+    output = self.renderer.render_name(self.template, self.tags)
+
+    if filename:
+        # Open the file and dump info there.
+        pass
+
+    return output
+
+# ----------------------------------------------------------
 # Classes
 # ----------------------------------------------------------
-    
+
 class Project(object):
     """
     Pulls and holds onto some of the most basic/common tags.
@@ -194,7 +237,12 @@ class Project(object):
              self.tags['preprocessor_defs_build_type'] = kwargs.pop('preprocessor_defs_executable', [])
 
         # if DEBUG: locals()
-        
+    
+
+    # Mixin the rendering capability.
+    render_mixin = render_mixin
+
+
     def render(self, filename=''):
         """
         Renders the Project file template. 
@@ -228,18 +276,7 @@ class Project(object):
             if D in self.tags:
                 self.tags[D] = prepare_list_entries(tag='define', string_list=self.tags[D])
 
-        # Fill out the correct path to the templates.
-        template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
-
-        # Create a Renderer that will find the templates and partials.
-        self.renderer = pystache.Renderer(search_dirs=template_dirs)
-
-        # Render to string.
-        output = self.renderer.render_name(self.template, self.tags)
-
-        if filename:
-            # Open the file and dump info there.
-            pass
+        output = self.render_mixin(filename)
 
         return output
 
@@ -281,16 +318,13 @@ class VS2012Project(Project):
         }
     }
 
-    def create_uuid(self):
-        return '{' + str(uuid.uuid4()).upper() + '}'
-
     def __init__(self, *args, **kwargs):
         # Call superclass (note: side effect, args and kwargs are modified)
-        super(WindowsProject, self).__init__(*args, **kwargs)
+        super(VS2012Project, self).__init__(*args, **kwargs)
         
         # Convert some of the basic params to the Windows-specific
         # Mustache tags.
-        self.tags['windows_project_guid']   = self.tags.pop('guid', self.create_uuid())
+        self.tags['windows_project_guid']   = self.tags.pop('guid', self.create_windows_guid())
         self.tags['windows_root_namespace'] = self.tags.pop('name')
 
         # Figure out what kind of project this is.
@@ -299,7 +333,7 @@ class VS2012Project(Project):
             
             # Map 'executable' type to 'console_executable'
             if build_type == Project.BUILD_TYPE_EXECUTABLE:
-                build_type = WindowsProject.BUILD_TYPE_CONSOLE_EXECUTABLE
+                build_type = self.BUILD_TYPE_CONSOLE_EXECUTABLE
             
         except KeyError as e:
             exception_explain_required_tag(self.__class__.__name__, str(e))
@@ -310,7 +344,7 @@ class VS2012Project(Project):
             raise ValueError()
         
         # Pull in the default config values and apply them to the tags.
-        self.tags.update(WindowsProject.BUILD_TYPE_MAPPING[build_type])
+        self.tags.update(self.BUILD_TYPE_MAPPING[build_type])
         
         # Start attaching parameters to the tags variable.
         # for k, v in kwargs.iteritems():
@@ -338,9 +372,22 @@ class VS2012Project(Project):
 
         # Convert those variables we need as lists, to be lists of filename dicts { 'filename': 'X' }
 
-class WindowsSolution:
-    def __init__(self):
+class VS2012Solution:
+    def __init__(self, name="", output_dir="", *args, **kwargs):
+        self.tags = {}
+
+        self.tags['solution_guid'] = create_windows_guid()
+        self.tags['']
+
         pass
+
+    def add_project(self, project=None):
+        pass
+
+
+    # Mixin the rendering capability.
+    render_mixin = render_mixin
+
 
 
 class ProjectFactory:

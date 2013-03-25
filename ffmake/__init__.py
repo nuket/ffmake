@@ -20,7 +20,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from .ffmake import WindowsProject
+from .ffmake import VS2012Project
 
 __version__ = '0.1' # Also change in setup.py.
-__all__     = ['Project', 'WindowsProject']
+__all__     = ['Project', 'VS2012Project']
