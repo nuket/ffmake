@@ -1,0 +1,5 @@
+Project("{{solution_guid}}") = "{{project_name}}", "{{project_file}}", "{{project_guid}}"
+    {{#dependencies_count}}
+    {{>ProjectDependencies}}
+    {{/dependencies_count}}
+EndProject

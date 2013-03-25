@@ -21,66 +21,30 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import ffmake
+# import ffmake.recipes.zlib
 
-# ffmake.GenerateProjects(types=["VS2012", "Xcode45", "Android.mk"])
+# zlib = 
 
-#
-# Note the use of raw strings for paths on Windows.
-#
-ZLIB_SOURCE_DIR         = r'..\ffmakeexternal\zlib-1.2.7'
-ZLIB_INCLUDE_DIRS       = [ZLIB_SOURCE_DIR]
-ZLIB_INCLUDE_DIRS_32BIT = [ZLIB_SOURCE_DIR + r'\contrib\masmx86']
-ZLIB_INCLUDE_DIRS_64BIT = [ZLIB_SOURCE_DIR + r'\contrib\masmx64']
-ZLIB_SOURCE_FILES       = ['adler32.c',
-                           'compress.c',
-                           'crc32.c',
-                           'deflate.c',
-                           'gzclose.c',
-                           'gzlib.c',
-                           'gzread.c',
-                           'gzwrite.c',
-                           'infback.c',
-                           'inffast.c',
-                           'inflate.c',
-                           'inftrees.c',
-                           'trees.c',
-                           'uncompr.c',
-                           'zutil.c',]
-ZLIB_PP_DEFS            = ['ZLIB_WINAPI',
-                           '_CRT_NONSTDC_NO_DEPRECATE',
-                           '_CRT_SECURE_NO_DEPRECATE',
-                           '_CRT_NONSTDC_NO_WARNINGS']
-ZLIB_PP_DEFS_64BIT      = ['WIN64']
+test_project_A = ffmake.VS2012Project(name="ProjectA", build_type="static_library")
+test_project_B = ffmake.VS2012Project(name="ProjectB", build_type="static_library", dependencies=[test_project_A])
+test_project_C = ffmake.VS2012Project(name="ProjectC", build_type="static_library")
 
-# zlib = ffmake.ProjectFactory(project_types=["VS2012", "Android.mk"],
-#                              build_types=['static_library', 'shared_library'],
+
+test_solution = ffmake.VS2012Solution(name="TestSolution", projects=[test_project_A,
+                                                                     test_project_B,
+                                                                     test_project_C])
+print test_solution.render()
+
+
+#test_project  = ffmake.project_factory(name='',
+#                                       ide_type='',
+#                                       dependencies=[])
+
+# test_solution = WindowsSolution(name='TestSolution',
+#                                projects=[test_project])
+
 # 
-#                              name="zlib")
-
-zlib_static = ffmake.WindowsProject(name="zlib", 
-                                    build_type="static_library",
-                                    source_dir=ZLIB_SOURCE_DIR,
-                                    source_files=ZLIB_SOURCE_FILES,
-                                    include_dirs=ZLIB_INCLUDE_DIRS,
-                                    include_dirs_shared=['..\shared'],
-                                    include_dirs_static=['..\static'],
-                                    include_dirs_debug=['../debug'],
-                                    include_dirs_release=['../release'],
-                                    include_dirs_32bit=ZLIB_INCLUDE_DIRS_32BIT,
-                                    include_dirs_64bit=ZLIB_INCLUDE_DIRS_64BIT,
-                                    preprocessor_defs=ZLIB_PP_DEFS,
-                                    preprocessor_defs_shared=[],
-                                    preprocessor_defs_static=[],
-                                    preprocessor_defs_debug=[],
-                                    preprocessor_defs_release=[],
-                                    preprocessor_defs_32bit=[],
-                                    preprocessor_defs_64bit=ZLIB_PP_DEFS_64BIT)
-
-print zlib_static.render()
-
-zlib_shared = ffmake.WindowsProject(name="zlib",
-                                    build_type="shared_library",
-                                    source_dir=r"..\ffmakeexternal\zlib-1.2.7")
+# test_solution.render(to_dir='')
 
 """
 L = Project(name='MyLib',

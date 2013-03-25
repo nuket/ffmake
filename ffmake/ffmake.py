@@ -150,13 +150,16 @@ class Project(object):
     
     Tags this class automatically gobbles up:
     
-    name: (Required)  
-           Every Project, every Solution file has a name of some kind.
-           It probably needs to be unique, but we're not going to check.
-           No name == ValueError.
+    :name: (Required)  
+            Every Project, every Solution file has a name of some kind.
+            It probably needs to be unique, but we're not going to check.
+            No name == ValueError.
 
-    guid: (Optional)
-           Unique identifier for the Project / Solution.
+            :name: is used to generate the :project_name: and :project_file:
+            tags.
+
+    :guid: (Optional)
+            Unique identifier for the Project / Solution.
            
     Items in args and kwargs and .popped, meaning the caller loses
     them.
@@ -324,7 +327,11 @@ class VS2012Project(Project):
         
         # Convert some of the basic params to the Windows-specific
         # Mustache tags.
-        self.tags['windows_project_guid']   = self.tags.pop('guid', self.create_windows_guid())
+        self.tags['project_guid']           = self.tags.pop('guid', create_windows_guid())
+        self.tags['project_name']           = self.tags['name']
+        self.tags['project_file']           = self.tags['name'] + '.vcxproj' # TODO: Add _static, _shared, _executable to the project name; convention over configuration.
+
+        self.tags['windows_project_guid']   = self.tags['project_guid']
         self.tags['windows_root_namespace'] = self.tags.pop('name')
 
         # Figure out what kind of project this is.
@@ -372,14 +379,32 @@ class VS2012Project(Project):
 
         # Convert those variables we need as lists, to be lists of filename dicts { 'filename': 'X' }
 
-class VS2012Solution:
-    def __init__(self, name="", output_dir="", *args, **kwargs):
+    def flatten(self):
+        # Controlling whether 'dependencies' sections get rendered at all.
+        self.tags['dependencies_count'] = len(self.tags.get('dependencies', []))
+
+        # Recursively flatten projects, so it's just a bunch of nested tags.
+        self.tags['dependencies'] = [P.flatten() for P in self.tags.get('dependencies', [])]
+
+        return self.tags
+
+class VS2012Solution(object):
+    def __init__(self, *args, **kwargs):
         self.tags = {}
 
-        self.tags['solution_guid'] = create_windows_guid()
-        self.tags['']
+        # One and only one of these. Required.
+        self.tags['solution_name'] = kwargs.get('name')
 
-        pass
+        # One and only one of these.
+        self.tags['solution_guid'] = create_windows_guid()
+
+        # There's a list of projects here.
+        self.tags['projects'] = kwargs.get('projects', [])
+
+        # Set up template info.
+        self.template_dirs  = kwargs.pop('template_dirs', ['templates/windows', 'templates/windows/partials_VS2012Solution'])
+        self.template       = kwargs.pop('template',       'VS2012Solution')
+
 
     def add_project(self, project=None):
         pass
@@ -388,6 +413,18 @@ class VS2012Solution:
     # Mixin the rendering capability.
     render_mixin = render_mixin
 
+    def render(self, filename=''):
+        # Controlling whether 'projects' sections get rendered at all.
+        self.tags['projects_count'] = len(self.tags.get('projects', []))
+
+        # Flatten the projects, by just using tags.
+        self.tags['projects'] = [P.flatten() for P in self.tags.get('projects', [])]
+
+        # print self.tags['projects']
+
+        output = self.render_mixin(filename)
+        
+        return output
 
 
 class ProjectFactory:
