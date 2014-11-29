@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:CommandLineExecutableC/CommandLineExecutableC.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:StaticCocoaLibrary/StaticCocoaLibrary.xcodeproj">
    </FileRef>
    <FileRef
