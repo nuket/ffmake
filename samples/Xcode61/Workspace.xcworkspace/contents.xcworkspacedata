@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:StaticStlLibrary/StaticStlLibrary.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:StaticPlainLibrary/StaticPlainLibrary.xcodeproj">
    </FileRef>
 </Workspace>
