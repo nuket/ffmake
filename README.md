@@ -39,7 +39,7 @@ templates.
 If you'd like to work on ffmake:
 
     git clone git@github.com:nuket/ffmake.git
-    git checkout develop
+    git checkout development
 
 Work on it, commit, push, and send me a pull request!
 
