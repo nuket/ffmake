@@ -34,7 +34,7 @@ our inputs and outputs are diff'able plaintext files. So changes made
 while you're in the native IDE can be easily backported to the project 
 templates.
 
-# Contributing
+## Contributing
 
 If you'd like to work on ffmake:
 
@@ -43,7 +43,7 @@ If you'd like to work on ffmake:
 
 Work on it, commit, push, and send me a pull request!
 
-# License
+## License (BSD)
 
 Copyright (c) 2013-2015 Max Vilimpoc
 
