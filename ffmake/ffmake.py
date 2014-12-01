@@ -1,5 +1,5 @@
 """
-Copyright (c) 2013 Max Vilimpoc
+Copyright (c) 2013-2015 Max Vilimpoc
 
 Permission is hereby granted, free of charge, to any person obtaining 
 a copy of this software and associated documentation files (the "Software"), 
@@ -20,10 +20,10 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import argparse
 import os
-import pystache
 import uuid
+
+from jinja2 import Environment, PackageLoader
 
 # ----------------------------------------------------------
 # Constants
@@ -115,6 +115,7 @@ def render_mixin(self, filename=''):
     The 'self' class instance needs to have the following variables
     set:
 
+    :env:            The Jinja environment to use to render templates.
     :template_dirs:  Tells Mustache where to find templates and partials.
     :tags:           The tags Mustache uses when rendering.
 
@@ -126,13 +127,13 @@ def render_mixin(self, filename=''):
                      is set to.
     """
     # Fill out the correct path to the templates.
-    template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
+    # template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
 
     # Create a Renderer that will find the templates and partials.
-    self.renderer = pystache.Renderer(search_dirs=template_dirs)
+    # self.renderer = pystache.Renderer(search_dirs=template_dirs)
 
     # Render to string.
-    output = self.renderer.render_name(self.template, self.tags)
+    output = self.template.render(self.tags)
 
     if filename:
         # Open the file and dump info there.
@@ -158,7 +159,7 @@ class Project(object):
             :name: is used to generate the :project_name: and :project_file:
             tags.
 
-    :guid: (Optional)
+    :uuid: (Optional)
             Unique identifier for the Project / Solution.
            
     Items in args and kwargs and .popped, meaning the caller loses
@@ -283,7 +284,11 @@ class Project(object):
 
         return output
 
-class VS2012Project(Project):
+class VisualStudioProject(Project):
+    # Windows makes a distinction between Windows subsystem executables and
+    # Console subsystem executables, so we have to slightly extend the list
+    # of allowable build types.
+    #
     # 'executable' == 'console_executable' by default (it's an alias)
     BUILD_TYPE_WINDOWS_EXECUTABLE = 'windows_executable'
     BUILD_TYPE_CONSOLE_EXECUTABLE = 'console_executable'
@@ -323,11 +328,21 @@ class VS2012Project(Project):
 
     def __init__(self, *args, **kwargs):
         # Call superclass (note: side effect, args and kwargs are modified)
-        super(VS2012Project, self).__init__(*args, **kwargs)
+        super(VisualStudioProject, self).__init__(*args, **kwargs)
+
+        # Instantiate the default Jinja environment:
+        #     make sure line endings are CRLF (which they aren't by default)
+        #     make sure trailing newlines are kept
+        #
+        # See: http://jinja.pocoo.org/docs/dev/api/
+        self.env = Environment(loader=PackageLoader('ffmake', 'templates/windows'), newline_sequence='\r\n', keep_trailing_newline=True)
+
+        # Instantiate the default Jinja template.
+        self.template = self.env.get_template('Project.vcxproj.jinja')
         
         # Convert some of the basic params to the Windows-specific
         # Mustache tags.
-        self.tags['project_guid']           = self.tags.pop('guid', create_windows_guid())
+        self.tags['project_guid']           = self.tags.pop('uuid', create_windows_guid())
         self.tags['project_name']           = self.tags['name']
         self.tags['project_file']           = self.tags['name'] + '.vcxproj' # TODO: Add _static, _shared, _executable to the project name; convention over configuration.
 
@@ -359,8 +374,8 @@ class VS2012Project(Project):
         #    print v
 
         # Set up template info.
-        self.template_dirs  = kwargs.pop('template_dirs', ['templates/windows', 'templates/windows/partials'])
-        self.template       = kwargs.pop('template',       'VS2012Project')
+        # self.template_dirs  = kwargs.pop('template_dirs', ['templates/windows', 'templates/windows/partials'])
+        # self.template       = kwargs.pop('template',       'VS2012Project')
         
         # Template dirs need to be specified in relation to where ffmake.py is located,
         # NOT where ffmakefile.py is being called (current working dir).
@@ -387,6 +402,9 @@ class VS2012Project(Project):
         self.tags['dependencies'] = [P.flatten() for P in self.tags.get('dependencies', [])]
 
         return self.tags
+
+class Solution():
+    pass
 
 class VS2012Solution(object):
     def __init__(self, *args, **kwargs):

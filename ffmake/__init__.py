@@ -1,5 +1,5 @@
 """
-Copyright (c) 2013 Max Vilimpoc
+Copyright (c) 2013-2015 Max Vilimpoc
 
 Permission is hereby granted, free of charge, to any person obtaining 
 a copy of this software and associated documentation files (the "Software"), 
@@ -20,7 +20,19 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from .ffmake import VS2012Project, VS2012Solution
+from .ffmake import Project, Solution, VisualStudioProject, VS2012Solution
 
-__version__ = '0.1' # Also change in setup.py.
-__all__     = ['Project', 'VS2012Project', 'VS2012Solution']
+__version__ = '0.2' # Also change in setup.py.
+# __all__     = ['Project', 'Solution', 'VisualStudioProject', 'VS2012Solution']
+
+# Constants
+
+STATIC_LIBRARY = 'static_library'
+SHARED_LIBRARY = 'shared_library'
+EXECUTABLE     = 'executable'
+
+VS_2012 = 'VS2012'
+VS_2013 = 'VS2013'
+VS_2015 = 'VS2015'
+
+XCODE_6_1 = 'XCODE61'

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2013 Max Vilimpoc
+Copyright (c) 2013-2015 Max Vilimpoc
 
 Permission is hereby granted, free of charge, to any person obtaining 
 a copy of this software and associated documentation files (the "Software"), 
@@ -21,7 +21,8 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 #
-# Note the use of raw strings for paths on Windows.
+# Note the use of raw strings for paths, ffmake will convert
+# paths to use the proper path separator when generating output.
 #
 ZLIB_SOURCE_DIR         = r'..\ffmakeexternal\zlib-1.2.7'
 ZLIB_INCLUDE_DIRS       = [ZLIB_SOURCE_DIR]
@@ -61,41 +62,41 @@ ZLIB_PP_DEFS_64BIT      = ['WIN64']
 # 'shared_library' generates 'name_shared'.project
 # 'executable'     generates 'name_executable'.project
 
-ZLIB_STATIC_TARGET      = {'build_type':                'static_library',
-                           'source_dir':                ZLIB_SOURCE_DIR,
-                           'source_files':              ZLIB_SOURCE_FILES,
-                           'include_dirs':              ZLIB_INCLUDE_DIRS,
-                           'include_dirs_shared':       [],
-                           'include_dirs_static':       [],
-                           'include_dirs_debug':        [],
-                           'include_dirs_release':      [],
-                           'include_dirs_32bit':        ZLIB_INCLUDE_DIRS_32BIT,
-                           'include_dirs_64bit':        ZLIB_INCLUDE_DIRS_64BIT,
-                           'preprocessor_defs':         ZLIB_PP_DEFS,
-                           'preprocessor_defs_shared':  [],
-                           'preprocessor_defs_static':  [],
-                           'preprocessor_defs_debug':   [],
-                           'preprocessor_defs_release': [],
-                           'preprocessor_defs_32bit':   [],
-                           'preprocessor_defs_64bit':   ZLIB_PP_DEFS_64BIT
+ZLIB_STATIC_TARGET      = { 'build_type':                'static_library',
+                            'source_dir':                ZLIB_SOURCE_DIR,
+                            'source_files':              ZLIB_SOURCE_FILES,
+                            'include_dirs':              ZLIB_INCLUDE_DIRS,
+                            'include_dirs_shared':       [],
+                            'include_dirs_static':       [],
+                            'include_dirs_debug':        [],
+                            'include_dirs_release':      [],
+                            'include_dirs_32bit':        ZLIB_INCLUDE_DIRS_32BIT,
+                            'include_dirs_64bit':        ZLIB_INCLUDE_DIRS_64BIT,
+                            'preprocessor_defs':         ZLIB_PP_DEFS,
+                            'preprocessor_defs_shared':  [],
+                            'preprocessor_defs_static':  [],
+                            'preprocessor_defs_debug':   [],
+                            'preprocessor_defs_release': [],
+                            'preprocessor_defs_32bit':   [],
+                            'preprocessor_defs_64bit':   ZLIB_PP_DEFS_64BIT }
 
-ZLIB_SHARED_TARGET      = {'build_type':                'shared_library',
-                           'source_dir':                ZLIB_SOURCE_DIR,
-                           'source_files':              ZLIB_SOURCE_FILES,
-                           'include_dirs':              ZLIB_INCLUDE_DIRS,
-                           'include_dirs_shared':       [],
-                           'include_dirs_static':       [],
-                           'include_dirs_debug':        [],
-                           'include_dirs_release':      [],
-                           'include_dirs_32bit':        ZLIB_INCLUDE_DIRS_32BIT,
-                           'include_dirs_64bit':        ZLIB_INCLUDE_DIRS_64BIT,
-                           'preprocessor_defs':         ZLIB_PP_DEFS,
-                           'preprocessor_defs_shared':  [],
-                           'preprocessor_defs_static':  [],
-                           'preprocessor_defs_debug':   [],
-                           'preprocessor_defs_release': [],
-                           'preprocessor_defs_32bit':   [],
-                           'preprocessor_defs_64bit':   ZLIB_PP_DEFS_64BIT
+ZLIB_SHARED_TARGET      = { 'build_type':                'shared_library',
+                            'source_dir':                ZLIB_SOURCE_DIR,
+                            'source_files':              ZLIB_SOURCE_FILES,
+                            'include_dirs':              ZLIB_INCLUDE_DIRS,
+                            'include_dirs_shared':       [],
+                            'include_dirs_static':       [],
+                            'include_dirs_debug':        [],
+                            'include_dirs_release':      [],
+                            'include_dirs_32bit':        ZLIB_INCLUDE_DIRS_32BIT,
+                            'include_dirs_64bit':        ZLIB_INCLUDE_DIRS_64BIT,
+                            'preprocessor_defs':         ZLIB_PP_DEFS,
+                            'preprocessor_defs_shared':  [],
+                            'preprocessor_defs_static':  [],
+                            'preprocessor_defs_debug':   [],
+                            'preprocessor_defs_release': [],
+                            'preprocessor_defs_32bit':   [],
+                            'preprocessor_defs_64bit':   ZLIB_PP_DEFS_64BIT }
 
 # zlib = ffmake.ProjectFactory(name="zlib",
 #                              project_types=["VS2012", "Android.mk"],

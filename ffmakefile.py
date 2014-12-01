@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Copyright (c) 2013-2015 Max Vilimpoc
 
@@ -23,52 +26,40 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 import ffmake
 # import ffmake.recipes.zlib
 
-# zlib = 
-
-test_project_A = ffmake.VS2012Project(name="ProjectA", build_type="static_library")
-test_project_B = ffmake.VS2012Project(name="ProjectB", build_type="static_library", dependencies=[test_project_A])
-test_project_C = ffmake.VS2012Project(name="ProjectC", build_type="static_library")
-
-
-test_solution = ffmake.VS2012Solution(name="TestSolution", projects=[test_project_A,
-                                                                     test_project_B,
-                                                                     test_project_C])
-print test_solution.render()
-
-
-#test_project  = ffmake.project_factory(name='',
-#                                       ide_type='',
-#                                       dependencies=[])
-
-# test_solution = WindowsSolution(name='TestSolution',
-#                                projects=[test_project])
-
-# 
-# test_solution.render(to_dir='')
-
-"""
-L = Project(name='MyLib',
-            result='StaticLibrary',
-            source_root='')
-L.render(where="outputdir")
-"""
-
-"""
-E = Project(name='MyExe',
-            dependencies = [ L ])
-
-S = Solution(name='MySolution',
-             projects = [ L, E ])
-"""
-
-"""
 # Generate the solution, project files in the current working directory
 # with all paths relative to that directory.
 
 if __name__ == "__main__":
-    wp = WindowsProject(name="ConsoleExe", build_type="windows_executable", source_dir="", source_files=[])
-    print wp.render()
-    
-    ws = WindowsSolution(name="MySolution", projects=[wp])
-    print ws.render()
-"""
+    # zlib =
+
+    # test_project_A = ffmake.VS2012Project(name="ProjectA", build_type="static_library")
+    # test_project_B = ffmake.VS2012Project(name="ProjectB", build_type="static_library", dependencies=[test_project_A])
+    # test_project_C = ffmake.VS2012Project(name="ProjectC", build_type="static_library")
+    #
+    #
+    # test_solution = ffmake.VS2012Solution(name="TestSolution", projects=[test_project_A,
+    #                                                                      test_project_B,
+    #                                                                      test_project_C])
+    # print test_solution.render()
+
+    # User can provide UUID, which should enable easier roundtripping when generating
+    # the Project files. UUID can be lower case, it will automatically be uppercased
+    # if necessary by Jinja!
+    project_A = ffmake.VisualStudioProject(name='Project_A',
+                                           build_type=ffmake.STATIC_LIBRARY,
+                                           uuid='0c3c77a5-66ab-43aa-8aa0-3eb99042b2e2')
+    print project_A.render()
+
+    # project_B = ffmake.Project(name='Project_B', build_type=ffmake.STATIC_LIBRARY, dependencies=[ project_A ])
+
+    # solution_A = ffmake.Solution(name="Solution_A", projects = [ project_A,
+    #                                                              project_B ])
+
+    # ffmake.render(targets=[ ffmake.VS_2013,
+    #                         ffmake.XCODE_6_1 ])
+
+    # wp = WindowsProject(name="ConsoleExe", build_type="windows_executable", source_dir="", source_files=[])
+    # print wp.render()
+    #
+    # ws = WindowsSolution(name="MySolution", projects=[wp])
+    # print ws.render()
