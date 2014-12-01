@@ -25,10 +25,10 @@ templates.
 
 ffmake does not try to have some kind of (ultimately 
 incomplete) custom internal model of what a build looks like that it then 
-maps through some kind of generator. All you do is specify a few lists of
-files, includes, include dirs, and preprocessor defines, and it just 
-plugs those values into the templates, which you can easily create 
-yourself.
+maps through some kind of generator. All you need to do is specify a few lists of
+files, includes, include directories, and preprocessor defines, and it will 
+plug those values into the templates, which you can easily create 
+yourself or subclass.
 
 In other words, you should be able to roundtrip pretty easily, because
 our inputs and outputs are diff'able plaintext files. So changes made
