@@ -30,7 +30,7 @@ import ffmake
 # with all paths relative to that directory.
 
 if __name__ == "__main__":
-    # zlib =
+    # zlib = ffmake.recipes.zlib.Project(source_dir='')
 
     # test_project_A = ffmake.VS2012Project(name="ProjectA", build_type="static_library")
     # test_project_B = ffmake.VS2012Project(name="ProjectB", build_type="static_library", dependencies=[test_project_A])
@@ -48,6 +48,8 @@ if __name__ == "__main__":
     project_A = ffmake.VisualStudioProject(name='Project_A',
                                            build_type=ffmake.STATIC_LIBRARY,
                                            uuid='0c3c77a5-66ab-43aa-8aa0-3eb99042b2e2')
+
+    # TODO: Rendering environments like Jinja uses, to control where file output goes.
     print project_A.render()
 
     # project_B = ffmake.Project(name='Project_B', build_type=ffmake.STATIC_LIBRARY, dependencies=[ project_A ])

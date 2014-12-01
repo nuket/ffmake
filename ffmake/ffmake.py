@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Copyright (c) 2013-2015 Max Vilimpoc
 
@@ -43,8 +46,10 @@ MODULE_DIR = os.path.dirname(__file__) + os.sep
 # Helper Functions
 # ----------------------------------------------------------
 
+
 def create_windows_guid():
     return '{' + str(uuid.uuid4()).upper() + '}'
+
 
 def fix_separators(paths):
     """
@@ -62,8 +67,10 @@ def fix_separators(paths):
 
     return paths
 
+
 def prefix_string_list_entries(prefix, string_list):
     return ['{0}{1}'.format(prefix, S) for S in string_list]
+
 
 def prepare_list_entries(tag="", prefix="", string_list=[], suffix=""):
     """
@@ -75,6 +82,7 @@ def prepare_list_entries(tag="", prefix="", string_list=[], suffix=""):
     [ {'dirname':  '..\..\includes'},   ... ]
     """
     return [{'{0}'.format(tag): '{0}{1}{2}'.format(prefix, S, suffix)} for S in string_list]
+
 
 def prefix_files(prefix="", filename_list=[]):
     # Only use the prefix if one is provided. 
@@ -92,11 +100,13 @@ def prefix_files(prefix="", filename_list=[]):
 # Error Explanations
 # ----------------------------------------------------------
 
+
 def exception_explain_required_tag(class_name="", tag=""):
     print
     print "ffmake: Required tag was not provided to the {0} constructor: {1}".format(class_name, tag)
     print "ffmake: Check your {0} instantiation, and make sure it has {1}='SomeValue' in it.".format(class_name, tag.replace("'", ""))
     print
+
 
 def exception_explain_build_types(build_types=[]):
     print
@@ -145,6 +155,7 @@ def render_mixin(self, filename=''):
 # Classes
 # ----------------------------------------------------------
 
+
 class Project(object):
     """
     Pulls and holds onto some of the most basic/common tags.
@@ -161,6 +172,10 @@ class Project(object):
 
     :uuid: (Optional)
             Unique identifier for the Project / Solution.
+
+    :source_dir: (Optional)
+                  Location of the source files. All subdirectories in the #include
+                  statements are relative to this folder.
            
     Items in args and kwargs and .popped, meaning the caller loses
     them.
@@ -241,11 +256,9 @@ class Project(object):
              self.tags['preprocessor_defs_build_type'] = kwargs.pop('preprocessor_defs_executable', [])
 
         # if DEBUG: locals()
-    
 
     # Mixin the rendering capability.
     render_mixin = render_mixin
-
 
     def render(self, filename=''):
         """
