@@ -13,6 +13,7 @@ going to invest time in supporting):
 
 - Microsoft Visual Studio 2013 for Desktop (msbuild)
 - Apple Xcode 6.1 for OS X and iOS (xcodebuild)
+- Eclipse Luna CDT (Makefiles)
 - Android.mk files (ndk-build)
 
 In all of these cases, I'm currently focusing on native C++ development,
