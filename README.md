@@ -37,7 +37,7 @@ templates.
 
 ## Contributing
 
-If you'd like to work on ffmake:
+If you'd like to help improve ffmake:
 
     git clone git@github.com:nuket/ffmake.git
     git checkout development
