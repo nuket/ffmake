@@ -46,7 +46,7 @@ Work on it, commit, push, and send me a pull request!
 
 ## License (BSD)
 
-Copyright (c) 2013-2015 Max Vilimpoc
+Copyright (c) 2013 - 2015 Max Vilimpoc
 
 Permission is hereby granted, free of charge, to any person obtaining 
 a copy of this software and associated documentation files (the "Software"), 
