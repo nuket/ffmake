@@ -12,6 +12,13 @@ Contents:
    :maxdepth: 2
 
    ffmake.rst
+   template-variables.rst
+
+Building this Documentation:
+
+   From a checkout of the ffmake source code, go to the ``sphinx`` folder and run ``make html``.
+
+   The HTML documentation files can then be opened via ``_build\html\index.html``.
 
 
 Indices and tables

@@ -1,27 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Copyright (c) 2013-2015 Max Vilimpoc
-
-Permission is hereby granted, free of charge, to any person obtaining 
-a copy of this software and associated documentation files (the "Software"), 
-to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom 
-the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be 
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
-OR OTHER DEALINGS IN THE SOFTWARE.
-"""
+# Copyright (c) 2013 - 2015 Max Vilimpoc
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom
+# the Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+# OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
 import uuid
@@ -32,14 +30,14 @@ from jinja2 import Environment, PackageLoader
 # Constants
 # ----------------------------------------------------------
 
-# You know, for development purposes. Set to 0 when 
-# releasing.
+# Use #: for documenting constants and other module-level identifiers.
+# http://stackoverflow.com/a/20227351
 
+#: You know, for development purposes. Set to 0 when releasing.
 DEBUG = 1
 
-# Need to know where the ffmake module is located, and where the 
+# Need to know where the ffmake module is located, and where the
 # templates are in relation to that.
-
 MODULE_DIR = os.path.dirname(__file__) + os.sep
 
 # ----------------------------------------------------------
@@ -56,7 +54,8 @@ def fix_separators(paths):
     Make sure that the input string or list of strings is using 
     the correct directory separator character.
 
-    So, always replace the \ or / symbols with the correct symbol.
+    So, always replace the ``\\`` or ``/`` path-separator symbols with
+    the correct symbol.
     """
     if   str  == type(paths):
         paths = paths.replace('\\', os.sep)
@@ -85,6 +84,16 @@ def prepare_list_entries(tag="", prefix="", string_list=[], suffix=""):
 
 
 def prefix_files(prefix="", filename_list=[]):
+    """
+    Prepends each file in the incoming :filename_list: with the :prefix: string.
+
+    If the :prefix: contains directory separator characters, they will be replaced
+    with the correct character for the current platform.
+
+    :param prefix:
+    :param filename_list:
+    :return:
+    """
     # Only use the prefix if one is provided. 
     # Check the prefix. It needs to have os.sep at its end.
     if prefix:
@@ -102,17 +111,19 @@ def prefix_files(prefix="", filename_list=[]):
 
 
 def exception_explain_required_tag(class_name="", tag=""):
+    """
+    When a required parameter is missing, explain that
+    it is not possible to proceed without this information.
+
+    :param class_name:  The class that could not be constructed.
+    :param tag:         The parameter that was missing.
+    :return:            None
+    """
     print
     print "ffmake: Required tag was not provided to the {0} constructor: {1}".format(class_name, tag)
     print "ffmake: Check your {0} instantiation, and make sure it has {1}='SomeValue' in it.".format(class_name, tag.replace("'", ""))
     print
 
-
-def exception_explain_build_types(build_types=[]):
-    print
-    print "ffmake: build_type must be one of: "
-    print "ffmake: " + ', '.join(build_types)
-    print
 
 # ----------------------------------------------------------
 # Mixin
@@ -126,7 +137,6 @@ def render_mixin(self, filename=''):
     set:
 
     :env:            The Jinja environment to use to render templates.
-    :template_dirs:  Tells Mustache where to find templates and partials.
     :tags:           The tags Mustache uses when rendering.
 
     Optional parameters:
@@ -136,12 +146,6 @@ def render_mixin(self, filename=''):
     :return:         The rendered output, regardless of what :filename:
                      is set to.
     """
-    # Fill out the correct path to the templates.
-    # template_dirs = prefix_string_list_entries(MODULE_DIR, self.template_dirs)
-
-    # Create a Renderer that will find the templates and partials.
-    # self.renderer = pystache.Renderer(search_dirs=template_dirs)
-
     # Render to string.
     output = self.template.render(self.tags)
 
@@ -151,56 +155,48 @@ def render_mixin(self, filename=''):
 
     return output
 
+
 # ----------------------------------------------------------
 # Classes
 # ----------------------------------------------------------
 
-
 class Project(object):
     """
-    Pulls and holds onto some of the most basic/common tags.
-    
-    Tags this class automatically gobbles up:
-    
-    :name: (Required)  
-            Every Project, every Solution file has a name of some kind.
-            It probably needs to be unique, but we're not going to check.
-            No name == ValueError.
+    Base class that the various platform project types derive from.
 
-            :name: is used to generate the :project_name: and :project_file:
-            tags.
-
-    :uuid: (Optional)
-            Unique identifier for the Project / Solution.
-
-    :source_dir: (Optional)
-                  Location of the source files. All subdirectories in the #include
-                  statements are relative to this folder.
-           
-    Items in args and kwargs and .popped, meaning the caller loses
-    them.
+    Stores data common to all subclass specializations in the ``self.tags`` dictionary.
     """
-    
-    BUILD_TYPE_STATIC_LIBRARY = 'static_library'
-    BUILD_TYPE_SHARED_LIBRARY = 'shared_library'
-    BUILD_TYPE_EXECUTABLE     = 'executable'
 
-    # Base class allowable build types.
+    #: Configures project to output as a Static Library.
+    BUILD_TYPE_STATIC_LIBRARY = 'static_library'
+
+    #: Configures project to output as a Shared Library.
+    BUILD_TYPE_SHARED_LIBRARY = 'shared_library'
+
+    #: Configures project to output as an Executable.
+    BUILD_TYPE_EXECUTABLE = 'executable'
+
+    #: Base class list of allowable build types.
     BUILD_TYPES = [BUILD_TYPE_STATIC_LIBRARY, BUILD_TYPE_SHARED_LIBRARY, BUILD_TYPE_EXECUTABLE]
 
-    # Base class checks for certain required tags.
+    #: Base class checks for these required tags. Every Project must have a ``name`` and ``build_type`` defined.
     REQUIRED_TAGS = ['name', 'build_type']
 
-    # Tags that are dirname or filename lists, that need to be
-    # run through the source_dir prefixer.
-    FILENAMES_NEEDING_SOURCE_DIR = ['text_files', 
-                                    'source_files',
-                                    'unmanaged_source_files',
-                                    'resource_files',
-                                    'image_files']
+    #: Lists of files, which may or may not have a directory prefix already,
+    #: that need to be run through the directory prefixer. The prefixer then
+    #: reworks the lists of files so that their relative paths are correct
+    #: in relation to the containing Project file.
+    FILENAME_LISTS_NEEDING_SOURCE_DIR = [
+        'text_files',
+        'source_files',
+        'unmanaged_source_files',
+        'header_files',
+        'resource_files',
+        'image_files'
+    ]
 
-    # Tags that are dirname lists, that need to have the paths
-    # fixed.
+    #: Lists of folders that need to be run through the directory
+    #: prefixer to be fixed.
     PATHS_NEEDING_FIX = ['include_dirs',
                          'include_dirs_shared',
                          'include_dirs_static',
@@ -216,6 +212,8 @@ class Project(object):
                          'lib_dirs_32bit',
                          'lib_dirs_64bit']
 
+    #: Preprocessor definitions that need to be run through the
+    #: directory prefixer to be fixed.
     PREPROCESSOR_DEFS_NEEDING_FIX = ['preprocessor_defs',
                                      'preprocessor_defs_shared',
                                      'preprocessor_defs_static',
@@ -227,9 +225,22 @@ class Project(object):
                                      'preprocessor_defs_build_type',
                                      'preprocessor_defs_project']
 
+    # ----------------------------------------------------------
+    # Public methods
+    # ----------------------------------------------------------
+
     def __init__(self, *args, **kwargs):
-        # Contains information to be rendered to the project template.
-        # This is used by all derived classes.
+        """
+        Contains information to be rendered to the project template.
+        This is used by all derived classes.
+
+        :param name:          The name of the Project, used when generating the Project filename and related folders.
+        :param build_type:    The type of the Project, which needs to be one of _`BUILD_TYPES`
+        :param source_folder: All source and header files for this Project, are relative to this folder.
+        :param uuid:          A unique identifier for the Project. It is a good idea to provide this, otherwise
+                              one will be automatically / randomly generated.
+        """
+        #: (dict) Store all of the incoming Project settings here.
         self.tags = {}
 
         # Pull all kwargs into tags object.
@@ -257,35 +268,30 @@ class Project(object):
 
         # if DEBUG: locals()
 
-    # Mixin the rendering capability.
-    render_mixin = render_mixin
-
     def render(self, filename=''):
         """
         Renders the Project file template. 
 
-        :filename:  A fully-qualified filename including path. 
+        :param filename:  (optional) A fully-qualified filename including path.
 
-        :returns:   The rendered template string.
+        :rtype:     String
+        :returns:   The rendered Project template.
         """
 
-        # Process the tags that need some fixing.
-
-        # Process all of the file lists, prefixing them with source_dir.
-        source_dir = self.tags.get('source_dir', '')
+        # Process all of the file lists, prefixing them with source_folder.
+        source_folder = self.tags.get('source_folder', '')
 
         # In other words: if text_files=['A.txt', 'B.txt'] then after
-        # after this loop:   text_files=['source_dir/A.txt', 'source_dir/B.txt']   (Unix)
-        # or:                text_files=['source_dir\\A.txt', 'source_dir\\B.txt'] (Windows)
-        for T in Project.FILENAMES_NEEDING_SOURCE_DIR:
+        # after this loop:   text_files=['source_folder/A.txt', 'source_folder/B.txt']   (Unix)
+        # or:                text_files=['source_folder\\A.txt', 'source_folder\\B.txt'] (Windows)
+        for T in Project.FILENAME_LISTS_NEEDING_SOURCE_DIR:
             if T in self.tags:
-                self.tags[T] = prefix_files(prefix=source_dir, filename_list=self.tags[T])
+                self.tags[T] = prefix_files(prefix=source_folder, filename_list=self.tags[T])
 
         for T in Project.PATHS_NEEDING_FIX:
             if T in self.tags:
                 self.tags[T] = prepare_list_entries(tag='dirname', string_list=fix_separators(self.tags[T]))
 
-        # Prepare for Mustache.
         # After this loop: preprocessor_defs=['DEFINE_A', 'DEFINE_B']
         # Becomes:         preprocessor_defs=[{'define': 'DEFINE_A'}, {'define': 'DEFINE_B'}]
 
@@ -293,9 +299,33 @@ class Project(object):
             if D in self.tags:
                 self.tags[D] = prepare_list_entries(tag='define', string_list=self.tags[D])
 
-        output = self.render_mixin(filename)
+        # Call the render mixin to render the Project file template.
+        output = self._render_mixin(filename)
 
         return output
+
+    # ----------------------------------------------------------
+    # Non-public methods
+    # ----------------------------------------------------------
+
+    # Mixin the rendering capability. (Hide this from Sphinx.)
+    _render_mixin = render_mixin
+
+    def _exception_explain_build_types(self):
+        """
+        When a ``build_type`` has not been provided, explain that
+        it is not possible to proceed without this information.
+
+        And, print a list of valid build_types for the Project type.
+
+        :return: None
+        """
+        print
+        print "ffmake: build_type must be one of: "
+        print "ffmake: " + ', '.join(self.build_types)
+        print
+
+
 
 class VisualStudioProject(Project):
     # Windows makes a distinction between Windows subsystem executables and
@@ -375,7 +405,7 @@ class VisualStudioProject(Project):
             raise e
 
         if build_type not in self.BUILD_TYPES:
-            exception_explain_build_types(self.BUILD_TYPES)
+            self._exception_explain_build_types(self.BUILD_TYPES)
             raise ValueError()
         
         # Pull in the default config values and apply them to the tags.
@@ -456,14 +486,3 @@ class VS2012Solution(object):
         output = self.render_mixin(filename)
         
         return output
-
-
-class ProjectFactory:
-    """
-    Creates Project-derived objects and returns these to caller.
-    """
-    def __init__(self, name="", build_types=[], *args, **kwargs):
-        pass
-
-    def render(self):
-        pass

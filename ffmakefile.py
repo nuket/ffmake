@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Copyright (c) 2013-2015 Max Vilimpoc
+Copyright (c) 2013 - 2015 Max Vilimpoc
 
 Permission is hereby granted, free of charge, to any person obtaining 
 a copy of this software and associated documentation files (the "Software"), 
@@ -42,12 +42,26 @@ if __name__ == "__main__":
     #                                                                      test_project_C])
     # print test_solution.render()
 
+    static_library_files = {
+        'headers': [
+            'fileA.h',
+            'fileB.h'
+        ],
+        'sources': [
+            'fileA.c',
+            'fileB.c'
+        ]
+    }
+
     # User can provide UUID, which should enable easier roundtripping when generating
     # the Project files. UUID can be lower case, it will automatically be uppercased
     # if necessary by Jinja!
     project_A = ffmake.VisualStudioProject(name='Project_A',
                                            build_type=ffmake.STATIC_LIBRARY,
-                                           uuid='0c3c77a5-66ab-43aa-8aa0-3eb99042b2e2')
+                                           uuid='0c3c77a5-66ab-43aa-8aa0-3eb99042b2e2',
+                                           source_folder='test_sources/static_library/',
+                                           files=static_library_files,
+                                           output_folder='test_outputs')
 
     # TODO: Rendering environments like Jinja uses, to control where file output goes.
     print project_A.render()
